@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ваш свадебный заказ</title>
+  <link rel="stylesheet" href="styles.css?v=20261120-4">
+  <script src="script.js?v=20261120-4" defer></script>
+</head>
+<body>
+  <main class="workspace">
+    <h1 class="print-only" id="print-title"></h1>
+    <header class="page-header">
+      <p class="eyebrow">ДЛЯ ВАШЕГО ОСОБЕННОГО ДНЯ</p>
+      <h1>Ваш свадебный заказ</h1>
+      <p class="hint">Добавьте позиции и цены — сумма посчитается сама.</p>
+      <p class="hint required-hint">Заполните реквизиты, наименование, количество и цену. Пустые обязательные поля выделены красным.</p>
+    </header>
+
+    <section class="card" aria-labelledby="details-title">
+      <h2 id="details-title">Реквизиты</h2>
+      <div class="details-grid">
+        <label>От кого<input type="text" name="sender" placeholder="Название свадебного магазина" required></label>
+        <label>Для кого<input type="text" name="recipient" placeholder="Имя клиента" required></label>
+        <label>Номер сметы<input type="text" name="estimate-number" placeholder="Например, 001" required></label>
+        <label>Дата<input type="date" id="estimate-date" name="estimate-date" required></label>
+      </div>
+    </section>
+
+    <section class="card wedding-card" aria-labelledby="wedding-title">
+      <h2 id="wedding-title">Свадьба и платье</h2>
+      <p class="hint">Эти сведения необязательны.</p>
+      <div class="details-grid">
+        <label>Дата свадьбы<input id="wedding-date" type="date"></label>
+        <label>Дата и время примерки<input id="fitting-date" type="datetime-local"></label>
+        <label>Артикул платья<input id="dress-article" type="text" placeholder="Например, BR-025"></label>
+        <label>Размер<input id="dress-size" type="text" placeholder="Например, 44–46"></label>
+        <label>Цвет<input id="dress-color" type="text" placeholder="Например, айвори"></label>
+      </div>
+      <label class="spaced-label">Необходимые изменения<textarea id="dress-alterations" rows="2" placeholder="Укоротить подол, подогнать корсет…"></textarea></label>
+    </section>
+
+    <section class="card screen-only" aria-labelledby="catalog-title">
+      <h2 id="catalog-title">Каталог товаров и услуг</h2>
+      <p class="hint">Добавьте свои товары с ценами. В списке показаны товары в выбранной валюте сметы.</p>
+      <form id="catalog-form" class="catalog-form">
+        <label>Наименование<input id="catalog-name" type="text" placeholder="Платье, фата, подгонка" required></label>
+        <label>Цена<input id="catalog-price" type="text" inputmode="decimal" placeholder="0" required></label>
+        <label>Единица<select id="catalog-unit"><option>шт</option><option>час</option><option>услуга</option></select></label>
+        <label>Валюта<select id="catalog-currency"><option>₸</option><option>₽</option><option>$</option><option>€</option></select></label>
+        <button type="submit" class="secondary-button">Сохранить в каталог</button>
+        <button type="button" class="secondary-button" id="catalog-cancel" hidden>Отменить изменение</button>
+      </form>
+      <p id="catalog-status" class="hint" role="status"></p>
+      <ul id="catalog-list" class="saved-list"></ul>
+    </section>
+
+    <section class="card positions-card" aria-labelledby="positions-title">
+      <div class="section-heading">
+        <h2 id="positions-title">Позиции</h2>
+        <p class="hint keyboard-hint" id="positions-hint">Enter в последней строке — новая позиция</p>
+      </div>
+      <table aria-describedby="positions-hint">
+        <caption class="sr-only">Позиции сметы, их количество, цены и суммы</caption>
+        <thead>
+          <tr><th scope="col">Наименование</th><th scope="col">Количество</th><th scope="col">Единица</th><th scope="col" class="price-label">Цена, ₸</th><th scope="col" class="amount-heading">Сумма</th><th scope="col"><span class="sr-only">Удаление</span></th></tr>
+        </thead>
+        <tbody id="positions"></tbody>
+      </table>
+      <button type="button" class="add-button" id="add-position">+ Добавить позицию</button>
+      <p class="sr-only" id="status" role="status"></p>
+      <div class="calculation-settings">
+        <label>Скидка, %<input id="discount-rate" type="text" inputmode="decimal" value="0" aria-describedby="discount-hint"></label>
+        <label>НДС включён, %<input id="vat-rate" type="text" inputmode="decimal" value="0" aria-describedby="discount-hint"></label>
+        <label>Валюта<select id="currency"><option value="₸">₸</option><option value="₽">₽</option><option value="$">$</option><option value="€">€</option></select></label>
+      </div>
+      <p class="hint settings-hint" id="discount-hint">Скидка — от 0 до 100 %. НДС уже включён в цены и выделяется из суммы после скидки.</p>
+    </section>
+
+    <section class="total-card" aria-labelledby="total-title" aria-live="polite" aria-atomic="true">
+      <div class="payment-settings">
+        <label>Предоплата<input id="prepayment" type="text" inputmode="decimal" value="0" aria-describedby="prepayment-hint"></label>
+        <p id="prepayment-hint" class="hint">Укажите уже внесённую сумму в валюте заказа.</p>
+      </div>
+      <dl class="summary">
+        <div class="summary-row"><dt>Сумма</dt><dd><output id="subtotal">0 ₸</output></dd></div>
+        <div class="summary-row" id="discount-row" hidden><dt>Скидка</dt><dd><output id="discount-total">0 ₸</output></dd></div>
+        <div class="summary-row" id="discounted-row" hidden><dt>Сумма со скидкой</dt><dd><output id="discounted-total">0 ₸</output></dd></div>
+        <div class="summary-row" id="vat-row" hidden><dt>В том числе НДС</dt><dd><output id="vat-total">0 ₸</output></dd></div>
+      </dl>
+      <div class="grand-total-row">
+        <h2 id="total-title">Итого к оплате</h2>
+        <output id="grand-total">0 ₸</output>
+      </div>
+      <dl class="payment-summary">
+        <div class="summary-row"><dt>Предоплата</dt><dd><output id="prepayment-total">0 ₸</output></dd></div>
+        <div class="summary-row balance-row"><dt>Осталось оплатить</dt><dd><output id="balance-total">0 ₸</output></dd></div>
+      </dl>
+    </section>
+    <section class="card comment-card" aria-labelledby="comment-title">
+      <h2 id="comment-title"><label for="comment">Комментарий</label></h2>
+      <textarea id="comment" name="comment" rows="4" placeholder="Дата примерки, сроки подгонки платья, условия предоплаты"></textarea>
+    </section>
+    <p class="print-only signature">Подпись ____________________</p>
+    <section id="validation-summary" class="validation-summary" role="alert" hidden aria-labelledby="validation-title">
+      <h2 id="validation-title">Проверьте смету перед отправкой</h2>
+      <ul id="validation-list"></ul>
+    </section>
+    <div class="document-actions">
+      <button type="button" id="save-pdf" class="save-button">Сохранить PDF</button>
+      <button type="button" id="copy-whatsapp" class="secondary-button">Скопировать для WhatsApp</button>
+      <button type="button" id="new-estimate" class="secondary-button">Новая смета</button>
+      <button type="button" id="save-order" class="secondary-button">Сохранить заказ в историю</button>
+      <span id="copy-status" role="status" aria-live="polite"></span>
+      <p class="hint">В окне печати выберите «Сохранить как PDF».</p>
+      <p class="hint" id="draft-status" role="status"></p>
+      <p class="hint" id="order-status" role="status"></p>
+    </div>
+    <section class="card" id="copy-fallback" hidden aria-labelledby="copy-fallback-title">
+      <h2 id="copy-fallback-title"><label for="copy-text">Скопируйте текст вручную</label></h2>
+      <p class="hint" id="copy-instructions">Выделите текст и нажмите Ctrl+C или ⌘C. На телефоне удерживайте текст и выберите «Копировать».</p>
+      <textarea id="copy-text" rows="10" readonly aria-describedby="copy-instructions"></textarea>
+    </section>
+    <section class="card screen-only history-card" aria-labelledby="history-title">
+      <h2 id="history-title">История заказов</h2>
+      <p class="hint">Сохраните заказ кнопкой «Сохранить заказ в историю». После редактирования сохраните его повторно.</p>
+      <label class="spaced-label">Найти заказ<input id="history-search" type="search" placeholder="Имя клиента, номер или артикул"></label>
+      <ul id="history-list" class="saved-list"></ul>
+    </section>
+  </main>
+
+  <template id="position-template">
+    <tr>
+      <td class="name-cell"><span class="mobile-label" aria-hidden="true">Наименование</span><input class="item-name" type="text" placeholder="Платье, фата или подгонка" aria-label="Наименование" required></td>
+      <td><span class="mobile-label" aria-hidden="true">Количество</span><input class="item-quantity" type="text" inputmode="decimal" placeholder="0" aria-label="Количество" required></td>
+      <td><span class="mobile-label" aria-hidden="true">Единица</span><select class="item-unit" aria-label="Единица"><option value="шт">шт</option><option value="час">час</option><option value="услуга">услуга</option></select></td>
+      <td><span class="mobile-label price-label" aria-hidden="true">Цена, ₸</span><input class="item-price" type="text" inputmode="decimal" placeholder="0" aria-label="Цена, ₸" required></td>
+      <td class="line-total-cell"><span class="mobile-label" aria-hidden="true">Сумма</span><output class="line-total">0 ₸</output></td>
+      <td class="remove-cell"><button type="button" class="remove-button" aria-label="Удалить позицию">✕</button></td>
+    </tr>
+  </template>
+</body>
+</html>
